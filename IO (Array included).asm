@@ -205,40 +205,36 @@ INPUT ENDP
 ; AS AX CAN OTHERWISE BE ALTERED   
 PRINT PROC
     PUSH SI
-    PUSH AX
-    PUSH DX
-    PUSH CX         
-    LEA SI, NUMBER_STRING 
+    PUSH AX    
+    PUSH BX
+    PUSH CX
+    PUSH DX         
+    LEA SI, NUMBER_STRING
     ADD SI, 5
     
     ; FIRST CHECK IF THE NUMBER IN AX IS NEGATIVE
-    MOV NEGATIVE, 0 
-    MOV NEGATIVE, 1
-    SHL NEGATIVE, 15 ; NOW NEGATIVE IS 2^15
-    TEST AX, NEGATIVE
-    ; IF THE SIGN BIT OF AX IS 1, THEN JZ WILL NOT HAPPEN 
+    MOV BX, 1
+    SHL BX, 15 ; NOW BX IS 2^15
+    TEST AX, BX
+    ; IF THE SIGN BIT OF AX IS 1, THEN JZ WILL NOT GET EXECUTED 
     JZ PRINT_LOOP
     ; OTHERWISE THE NUMBER IS NEGATIVE
-    MOV NEGATIVE, 1
+    MOV BX, 1
     NEG AX
     
     
     PRINT_LOOP:
         DEC SI
-        
         MOV DX, 0
         ; DX:AX = 0000:AX
-        
         MOV CX, 10
         DIV CX
-        
         ADD DL, '0'
         MOV [SI], DL
-        
         CMP AX, 0
         JNE PRINT_LOOP 
         
-    CMP NEGATIVE, 1
+    CMP BX, 1
     JNE DO_PRINT_NUMBER
     MOV DL, '-'
     MOV AH, 2
@@ -248,9 +244,10 @@ PRINT PROC
         MOV DX, SI
         MOV AH, 09
         INT 21H
-    
-    POP CX
+           
     POP DX
+    POP CX    
+    POP BX
     POP AX
     POP SI
     RET
